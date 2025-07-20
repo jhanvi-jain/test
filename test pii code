@@ -1,0 +1,91 @@
+import re
+
+def process_user_data(user_data):
+    """
+    Simulates processing user data, including PII, and checks for organization names.
+
+    Args:
+        user_data (dict): A dictionary containing user information.
+                         Expected keys: 'name', 'email', 'phone', 'address', 'company'.
+
+    Returns:
+        dict: A dictionary containing the processing status and any identified PII/org info.
+    """
+    processed_status = {"status": "Processing complete"}
+    pii_identified = []
+    org_name_identified = []
+
+    # Define common PII patterns (simplified for demonstration)
+    pii_patterns = {
+        "email": r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+        "phone": r"^\+?\d{1,3}[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$",
+        "name": r"^[A-Za-z\s.'-]+$",
+        "address": r"^[A-Za-z0-9\s.,#-]+$"
+    }
+
+    # Check for PII in provided user data
+    for key, value in user_data.items():
+        if key in pii_patterns and isinstance(value, str):
+            if re.match(pii_patterns[key], value):
+                pii_identified.append(f"{key}: {value}")
+                print(f"✅ Identified PII - {key}: {value}")
+            else:
+                print(f"⚠️ Data for {key} does not match typical PII pattern.")
+
+    # Check for organization name (Flipkart or FK)
+    company_name = user_data.get("company", "").lower()
+    if "flipkart" in company_name or "fk" in company_name:
+        org_name_identified.append(f"Organization: {user_data.get('company')}")
+        print(f"🎯 Identified Organization Name: {user_data.get('company')}")
+
+    processed_status["pii_data"] = pii_identified
+    processed_status["organization_data"] = org_name_identified
+
+    return processed_status
+
+# --- Test Cases ---
+
+print("--- Test Case 1: All PII and Flipkart ---")
+user_1 = {
+    "name": "John Doe",
+    "email": "john.doe@example.com",
+    "phone": "+91-9876543210",
+    "address": "123 Main Street, Anytown, 12345",
+    "company": "Flipkart India Pvt Ltd"
+}
+result_1 = process_user_data(user_1)
+print(result_1)
+print("-" * 30)
+
+print("\n--- Test Case 2: Some PII and FK ---")
+user_2 = {
+    "name": "Jane Smith",
+    "email": "jane.smith@email.co.in",
+    "phone": "08012345678",
+    "address": "Bangalore, Karnataka",
+    "company": "FK Digital Services"
+}
+result_2 = process_user_data(user_2)
+print(result_2)
+print("-" * 30)
+
+print("\n--- Test Case 3: No Org Name, Partial PII ---")
+user_3 = {
+    "name": "Alice Brown",
+    "email": "alice@test.org",
+    "phone": "111-222-3333",
+    "address": "Somewhere, Earth",
+    "company": "Tech Solutions Inc."
+}
+result_3 = process_user_data(user_3)
+print(result_3)
+print("-" * 30)
+
+print("\n--- Test Case 4: Missing PII fields ---")
+user_4 = {
+    "name": "Bob White",
+    "company": "Flipkart Logistics"
+}
+result_4 = process_user_data(user_4)
+print(result_4)
+print("-" * 30)
